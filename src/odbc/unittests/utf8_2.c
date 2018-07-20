@@ -66,16 +66,16 @@ main(int argc, char *argv[])
 	CHKAllocStmt(&odbc_stmt, "S");
 
 	/* create test table */
-	odbc_command("CREATE TABLE #tmpHebrew (i INT, v VARCHAR(10) COLLATE Hebrew_CI_AI)");
+	odbc_command("CREATE TABLE #tmp (i INT, hebrew VARCHAR(10) COLLATE Hebrew_CI_AI NULL)");
 
 	/* insert with INSERT statements */
 	for (n = 0, p = strings_hex; p[n]; ++n) {
-		sprintf(tmp, "INSERT INTO #tmpHebrew VALUES(%d, CAST(%s AS NVARCHAR(10)))", n+1, p[n]);
+		sprintf(tmp, "INSERT INTO #tmp(i, hebrew) VALUES(%d, CAST(%s AS NVARCHAR(10)))", n+1, p[n]);
 		odbc_command(tmp);
 	}
 
 	/* test conversions in libTDS */
-	odbc_command("SELECT v FROM #tmpHebrew");
+	odbc_command("SELECT hebrew FROM #tmp WHERE hebrew IS NOT NULL ORDER BY i");
 
 	/* insert with SQLPrepare/SQLBindParameter/SQLExecute */
 	CHKBindCol(1, SQL_C_CHAR, out, sizeof(out), &n_len, "S");
